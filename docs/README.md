@@ -9,7 +9,7 @@ This simulator compares two instructions:
 
 ## Why Dot Product Optimization
 * *Matrix Multiplication* accounts for the majority of the computational workload during the inference phase of transformer architectures.
-* Bottleneck at Memory access due to latency and bandwidth limitations. Optimizing the dot product increases arithmetic intensity, reducing the number of memory accesses per computation, thereby reducing the pressure on the memory system.
+* **Bottleneck at Memory access** due to latency and bandwidth limitations. Optimizing the dot product increases arithmetic intensity, reducing the number of memory accesses per computation, thereby reducing the pressure on the memory system.
 * With Edge AI devices, reducing the number of clock cycles and memory access directly contributes to power savings, extended battery life,..., key factors for embedded systems.
 
 ## Methodology
@@ -26,9 +26,6 @@ This simulator compares two instructions:
       + RD: Register Destination
       + RS1, RS2: Register sources
       + Imm, Func: constant value, additional function code
-
-  * Clock cycle for Custom ISA:
-
 
 2. Baseline Implementation
    The standard RISC-V approach for the Dot Product loop involves:
