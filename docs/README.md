@@ -52,5 +52,5 @@ This simulator compares two instructions:
   | Metric | Baseline ISA | Custom ISA | Improvement | 
   | :--- | :---: | :---: | :---: |
   | **Instructions per Loops** | 9 | 5 | **~44%** |
-  | **Total cycles (N=100)** | 1000 | 600 | **40% |
+  | **Total cycles (N=100)** | 1000 | 600 | **40%** |
 
