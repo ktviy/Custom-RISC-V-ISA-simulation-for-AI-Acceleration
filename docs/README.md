@@ -1,5 +1,5 @@
-## Custom RISC-V ISA for Dot Product 
-A simulator comparing Baseline vs. Custom fused Instructions for Edge AI applications. 
+# RISC-V Dot-Product Accelerator
+A C++ Cycle-Accurate Simulator achieving 40% cycle reduction via Custom Fused Instructions and Dual-Port Memory architecture.
 
 ## Overview
 
@@ -22,7 +22,7 @@ To simulate resource-constrained microcontrollers, a **16-bit word length** was 
 
 | Field | Opcode | RD | RS1 | RS2 / Imm | Func / Imm |
 | :--- | :---: | :---: | :---: | :---: | :---: |
-| **Bits** | 15–12 | 11–9 | 8–6 | 5–3 | 2–0 |
+| **Bits** | 15-12 | 11-9 | 8-6 | 5-3 | 2-0 |
 
 ## ⚡ Custom Instruction Set
 
