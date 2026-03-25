@@ -1,56 +1,53 @@
-## Custom RISC-V ISA for Dot Product 
+# RISC-V Dot-Product Accelerator
+A C++ Cycle-Accurate Simulator achieving 40% cycle reduction via Custom Fused Instructions and Dual-Port Memory architecture.
 
-## Introduction 
-This project is a cycle-accurate C++ simulator that simulates a custom RISC-V instruction set designed to optimize linear algebra. The project focuses on designing and implementing specialized instructions to accelerate the dot product operation, a core mathematical operation in deep learning models. 
+## Overview
 
-This simulator compares two instructions:
-1. Baseline ISA: Use the standard instruction (Load, Multiply, Add).
-2. Custom ISA: Use fused instructions to minimize latency and increase the throughput. 
+In resource-constrained embedded systems, standard RISC-V instructions (Load, Multiply, Add) often lead to significant overhead in instruction fetching and memory access. This simulator demonstrates how **fused instructions** can minimize latency and increase throughput for Deep Learning workloads.
+
+## Methodology 
+
+### Key Highlights:
+* **Cycle-Accurate Modeling:** Precise tracking of clock cycles to reflect hardware behavior.
+* **Instruction Fusion:** Reduction of the instruction count per loop by ~44%.
+* **Edge-First Design:** 16-bit instruction format to optimize memory footprint and power consumption.
 
 ## Why Dot Product Optimization
-* *Matrix Multiplication* accounts for the majority of the computational workload during the inference phase of transformer architectures.
-* **Bottleneck at Memory access** due to latency and bandwidth limitations. Optimizing the dot product increases arithmetic intensity, reducing the number of memory accesses per computation, thereby reducing the pressure on the memory system.
-* With Edge AI devices, reducing the number of clock cycles and memory access directly contributes to power savings, extended battery life,..., key factors for embedded systems.
+1. *Matrix Multiplication* accounts for the majority of the computational workload during the inference phase of transformer architectures.
+2. **Bottleneck at Memory access** due to latency and bandwidth limitations. Optimizing the dot product increases arithmetic intensity, reducing the number of memory accesses per computation, thereby reducing the pressure on the memory system.
+3.  With Edge AI devices, reducing the number of clock cycles and memory access directly contributes to power savings, extended battery life,..., key factors for embedded systems.
 
-## Methodology
-1. Instruction
-   * I chose a 16-bit instruction to simulate resource-constrained embedded systems, which can
-     + Reducing the amount of memory required, which is crucial for embedded devices such as microcontrollers. Therefore, the program can store more functionality within the same memory space.
-     + For matrix computation tasks, 16-bit is sufficient to perform basic operations without wasting resources compared to a 32-bit instruction.
+### 16-bit Instruction Format
+To simulate resource-constrained microcontrollers, a **16-bit word length** was chosen to maximize code density.
 
-   * Instruction format
-| Bits  | 15–12 | 11–9 | 8–6 | 5–3       | 2–0       |
-|:-----:|:-----:|:----:|:---:|:---------:|:---------:|
-| Field | Opcode| RD   | RS1 | RS2 / Imm | Func / Imm|
-      + Opcode: code for each instruction
-      + RD: Register Destination
-      + RS1, RS2: Register sources
-      + Imm, Func: constant value, additional function code
+| Field | Opcode | RD | RS1 | RS2 / Imm | Func / Imm |
+| :--- | :---: | :---: | :---: | :---: | :---: |
+| **Bits** | 15-12 | 11-9 | 8-6 | 5-3 | 2-0 |
 
-2. Baseline Implementation
-   The standard RISC-V approach for the Dot Product loop involves:
-     + 'LOAD' element from array A
-     + 'LOAD' element from array B
-     + 'MUL' multiply the two elements
-     + 'ADD' add the result into an accumulator register
-     + 'ADDI' increment pointers and loop counter
+## ⚡ Custom Instruction Set
 
-   Each instructions take 1 clock cycle
+We compare a standard RISC-V baseline against a specialized **Fused ISA**:
+Our custom design leverages a **Dual-Port Memory architecture**, allowing the CPU to fetch two different operands from memory simultaneously within a single fused instruction.
 
-3. Custom fused instructions
-     + 'LNM': fuses two memory loads and a multiplication into a single instruction cycle, reducing the Instruction Fetch overhead
-     + 'ACC': accumulates value directly into a register
--> Custom 2 instructions to keep the instructions simple to optimize the clock frequency
--> Available for resource-constrained embedded chips because the data bus is not wide enough to do all work in 1-2 cycles, leading to CPU stalls.
+### 1. Baseline Implementation (Standard RISC-V)
+A standard loop requires 5-6 instructions to process a single element pair:
+* `LOAD` element from Array A
+* `LOAD` element from Array B
+* `MUL` elements
+* `ADD` to the accumulator
+* `ADDI` (Pointer increment & Loop counter)
 
-   Clock cycles:
-     + ACC: 1 cycle
-     + LNM: 2 cycles
-        - If LNM is 1 cycle, the critical path of the hardware will be very long, forcing the CPU to lower its clock speed
-      
-  ## Performance Benchmarking 
+### 2. Custom Fused Instructions
+* **`LNM` (Load-Load-Multiply):** Fuses two memory loads and one multiplication. 
+  * *Latency:* 2 cycles (Designed to prevent critical path stretching and maintain high clock frequency).
+* **`ACC` (Accumulate):** Directly accumulates the value into a destination register.
+  * *Latency:* 1 cycle.
+
+## Performance Benchmarking 
   | Metric | Baseline ISA | Custom ISA | Improvement | 
   | :--- | :---: | :---: | :---: |
   | **Instructions per Loops** | 9 | 5 | **~44%** |
   | **Total cycles (N=100)** | 1000 | 600 | **40%** |
+
+> **Note:** The 40% reduction in cycles significantly lowers energy consumption per inference, a critical factor for embedded AI chips. The architectural trade-off involves using Dual-Port Memory, which increases hardware area but provides substantial speedup for AI workloads.
 
