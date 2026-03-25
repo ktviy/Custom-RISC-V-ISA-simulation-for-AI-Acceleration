@@ -1,6 +1,13 @@
 #include "Decode.h"
 #include "ISA.h"
 
+int16_t signExtend(uint16_t value, int bits) {
+    if ((value >> (bits - 1)) & 1) { 
+        return value | (0xFFFF << bits); 
+    }
+    return value; 
+}
+
 Instruction decode(uint16_t raw){
     Instruction i{};
     i.opcode = (raw >> 12) & 0xF; // Extract the opcode from the raw instruction
@@ -38,17 +45,17 @@ Instruction decode(uint16_t raw){
         case OP_ADDI:
             i.rd = (raw >> 9) & 0x7;
             i.rs1 = (raw >> 6) & 0x7;
-            i.imm = raw & 0x3F;
+            i.imm = signExtend(raw & 0x3F, 6);
             break;
         
         case OP_BEQ:
             i.rs1 = (raw >> 9) & 0x7;
             i.rs2 = (raw >> 6) & 0x7;
-            i.addr1 = raw & 0x3F;
+            i.addr1 = signExtend(raw & 0x3F, 6);
             break;
         
         case OP_JMP:
-            i.addr1 = raw & 0xFFF;
+            i.addr1 = signExtend(raw & 0xFFF, 12);
             break;
 
         default:

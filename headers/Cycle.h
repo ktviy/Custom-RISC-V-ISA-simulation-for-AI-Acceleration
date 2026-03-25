@@ -4,10 +4,10 @@
 
 class Cycle{
 public: 
-    void inc(uint16_t c);
-    uint16_t get() const; 
+    void inc(uint32_t c);
+    uint32_t get() const; 
 private: 
-    uint16_t cycles = 0;
+    uint32_t cycles = 0;
 };
 
 #endif

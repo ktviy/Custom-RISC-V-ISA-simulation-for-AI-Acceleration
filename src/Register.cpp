@@ -6,5 +6,6 @@ uint16_t RegisterFile::read(uint8_t reg) const {
 }
 
 void RegisterFile::write(uint8_t reg, uint16_t value) {
+    if (reg == 0) return; // Register 0 is hardwired to 0
     regs[reg] = value;
 }

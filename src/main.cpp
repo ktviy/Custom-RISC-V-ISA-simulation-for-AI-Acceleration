@@ -8,7 +8,7 @@ int main() {
     std::cout << "Enter vector length N: ";
     std::cin >> N;
 
-    std::vector<uint16_t> vecA(N), vecB(N);
+    std::vector<int16_t> vecA(N), vecB(N);
     std::cout << "Enter Vector A:\n";
     for(int i=0; i<N; i++) std::cin >> vecA[i];
     std::cout << "Enter Vector B:\n";
@@ -22,11 +22,11 @@ int main() {
     CPU cpuBase;
 
     for (int i = 0; i < N; i++) {
-        cpuBase.loadInstruction(addrA + i, vecA[i]); 
-        cpuBase.loadInstruction(addrB + i, vecB[i]); 
+        cpuBase.loadInstruction(addrA + i, (uint16_t)vecA[i]); 
+        cpuBase.loadInstruction(addrB + i, (uint16_t)vecB[i]); 
     };
 
-    cpuBase.setRegisterValue(0, 0);
+    cpuBase.setRegisterValue(7, 0);
     cpuBase.setRegisterValue(1, 0);     // i
     cpuBase.setRegisterValue(2, N);     // N
     cpuBase.setRegisterValue(5, addrA); // Pointer A
@@ -34,15 +34,15 @@ int main() {
 
     int pcBase = 0;
     
-    cpuBase.loadInstruction(pcBase++, (OP_BEQ << 12) | (1 << 9) | (2 << 6) | 9);
+    cpuBase.loadInstruction(pcBase++, (OP_BEQ << 12) | (1 << 9) | (2 << 6) | (8 & 0x3F));
     cpuBase.loadInstruction(pcBase++, (OP_LOAD << 12) | (3 << 9) | (5 << 6)); 
     cpuBase.loadInstruction(pcBase++, (OP_LOAD << 12) | (4 << 9) | (6 << 6));
-    cpuBase.loadInstruction(pcBase++, (OP_MUL << 12) | (7 << 9) | (3 << 6) | (4 << 3));
-    cpuBase.loadInstruction(pcBase++, (OP_ADD << 12) | (0 << 9) | (0 << 6) | (7 << 3));
+    cpuBase.loadInstruction(pcBase++, (OP_MUL << 12) | (3 << 9) | (3 << 6) | (4 << 3));
+    cpuBase.loadInstruction(pcBase++, (OP_ADD << 12) | (7 << 9) | (7 << 6) | (3 << 3));
     cpuBase.loadInstruction(pcBase++, (OP_ADDI << 12) | (1 << 9) | (1 << 6) | 1);
     cpuBase.loadInstruction(pcBase++, (OP_ADDI << 12) | (5 << 9) | (5 << 6) | 1);
     cpuBase.loadInstruction(pcBase++, (OP_ADDI << 12) | (6 << 9) | (6 << 6) | 1);
-    cpuBase.loadInstruction(pcBase++, (OP_JMP << 12) | 0);
+    cpuBase.loadInstruction(pcBase++, (OP_JMP << 12) | (-9 & 0xFFF));
     
     cpuBase.setPC(0);
     while (cpuBase.getPC() < 9) {
@@ -58,7 +58,7 @@ int main() {
         cpuNew.loadInstruction(addrB + i, vecB[i]);
     };
 
-    cpuNew.setRegisterValue(0, 0); 
+    cpuNew.setRegisterValue(7, 0); 
     cpuNew.setRegisterValue(1, 0); // i = 0
     cpuNew.setRegisterValue(2, N); 
     cpuNew.setRegisterValue(5, addrA);
@@ -66,11 +66,11 @@ int main() {
 
     int pcNew = 0; 
 
-    cpuNew.loadInstruction(pcNew++, (OP_BEQ << 12) | (1 << 9) | (2 << 6) | 5);
-    cpuNew.loadInstruction(pcNew++, (OP_LNM << 12) | (3 << 9) | (5 << 6) | (6 << 3)); // store value at R1
-    cpuNew.loadInstruction(pcNew++, (OP_ACC << 12) | (0 << 9) | (3 << 5));
+    cpuNew.loadInstruction(pcNew++, (OP_BEQ << 12) | (1 << 9) | (2 << 6) | (4 & 0x3F)); // if i == N, jump to end
+    cpuNew.loadInstruction(pcNew++, (OP_LNM << 12) | (3 << 9) | (5 << 6) | (6 << 3)); 
+    cpuNew.loadInstruction(pcNew++, (OP_ACC << 12) | (7 << 9) | (3 << 5));
     cpuNew.loadInstruction(pcNew++, (OP_ADDI << 12) | (1 << 9) | (1 << 6) | 1);
-    cpuNew.loadInstruction(pcNew++, (OP_JMP << 12) | 0);
+    cpuNew.loadInstruction(pcNew++, (OP_JMP << 12) | (-5 & 0xFFF));
 
     cpuNew.setPC(0); 
     while(cpuNew.getPC() < 5) {
@@ -79,8 +79,8 @@ int main() {
      
     std::cout << "\n----------------------------------------";
     std::cout << "\n[RESULT COMPARISON]";
-    std::cout << "\nBaseline Result: " << cpuBase.getRegisterValue(0);
-    std::cout << "\nNew ISA Result: " << cpuNew.getRegisterValue(0);
+    std::cout << "\nBaseline Result: " << (int16_t)cpuBase.getRegisterValue(7);
+    std::cout << "\nNew ISA Result: " << (int16_t)cpuNew.getRegisterValue(7);
     std::cout << "\n----------------------------------------";
     std::cout << "\n[CYCLE COMPARISON]";
     std::cout << "\nBaseline Cycles: " << cpuBase.getCycles();

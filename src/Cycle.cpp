@@ -1,9 +1,9 @@
 #include "Cycle.h"
 #include <cstdint>
 
-void Cycle::inc(uint16_t c){
+void Cycle::inc(uint32_t c){
     cycles += c;
 }
-uint16_t Cycle::get() const {
+uint32_t Cycle::get() const {
     return cycles;
 }
